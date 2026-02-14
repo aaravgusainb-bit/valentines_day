@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Gift For You | Valentine's 3D Book</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,700;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink-primary: #ec4899;
+            --pink-light: #fdf2f8;
+            --pink-medium: #fbcfe8;
+            --pink-dark: #be185d;
+            --burgundy: #831843;
+            --deep-wine: #500724;
+        }
+
+        body {
+            background: radial-gradient(circle, var(--burgundy), var(--deep-wine));
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1800px;
+        }
+
+        .book {
+            position: relative;
+            width: 420px;
+            height: 580px;
+            transition: transform 1s cubic-bezier(0.15, 1, 0.3, 1);
+            transform-style: preserve-3d;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            background: linear-gradient(135deg, var(--pink-light) 0%, var(--pink-medium) 100%);
+            border-radius: 0 15px 15px 0;
+            transform-origin: left;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.15, 1, 0.3, 1), z-index 0.8s;
+            box-shadow: inset 5px 0 15px rgba(0,0,0,0.05), 5px 0 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .page-content {
+            padding: 2.5rem 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backface-visibility: hidden;
+            position: relative;
+            border-radius: 0 15px 15px 0;
+        }
+
+        .italic-style {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* --- UPDATED COVER STYLES TO MATCH IMAGE --- */
+        #cover { 
+            background-color: #d81b60; /* Darker pink/magenta base */
+            background-image: radial-gradient(#f06292 2px, transparent 2px);
+            background-size: 30px 30px;
+            color: white; 
+            z-index: 100; 
+        }
+        
+        .ribbon-v, .ribbon-h { position: absolute; background: #ffffff; z-index: 5; transition: all 0.8s ease; opacity: 0.9; }
+        .ribbon-v { width: 50px; height: 100%; left: 50%; transform: translateX(-50%); }
+        .ribbon-h { height: 50px; width: 100%; top: 50%; transform: translateY(-50%); }
+        
+        .cut-ribbon .ribbon-v { transform: scaleY(0); opacity: 0; }
+        .cut-ribbon .ribbon-h { transform: scaleX(0); opacity: 0; }
+
+        .gift-card {
+            background: white;
+            width: 85%;
+            height: 80%;
+            border-radius: 25px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        #cut-btn {
+            background-color: #d81b60;
+            color: white;
+            font-weight: 600;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(216, 27, 96, 0.4);
+        }
+
+        #cut-btn:hover { transform: scale(1.05); }
+
+        /* --- REST OF STYLES --- */
+        .date-ribbon {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: var(--pink-dark);
+            color: white;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            clip-path: polygon(100% 0, 100% 100%, 50% 85%, 0 100%, 0 0);
+            height: 45px;
+            z-index: 30;
+        }
+
+        .page-back {
+            position: absolute;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            background: linear-gradient(to left, #fce7f3, #fbcfe8);
+            transform: rotateY(-180deg);
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px 0 0 15px;
+        }
+
+        .flipped { transform: rotateY(-180deg); }
+
+        .page-emoji {
+            position: absolute;
+            bottom: -50px;
+            animation: floatUpEmoji 5s linear infinite;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes floatUpEmoji {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.4; }
+            100% { transform: translateY(-600px) rotate(360deg); opacity: 0; }
+        }
+
+        .note-box {
+            border: 1px dashed var(--pink-primary);
+            padding: 1.2rem;
+            margin: 1rem 0;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            width: 100%;
+        }
+
+        #canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 3000; }
+        #no-btn { background-color: #ef4444; color: white; transition: all 0.2s ease; }
+        #secret-message { display: none; animation: fadeIn 1.5s ease-in forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="book" id="book">
+        <div class="page" id="cover">
+            <div class="ribbon-v"></div>
+            <div class="ribbon-h"></div>
+            <div class="page-content flex items-center justify-center">
+                <div class="gift-card">
+                    <h1 class="italic-style text-4xl text-pink-600 mb-4">For Someone Special</h1>
+                    <div class="text-6xl mb-6">🎁</div>
+                    
+                    <p class="text-pink-500 font-semibold text-sm mb-2">Who is this gift for?</p>
+                    <input type="text" id="name-input" placeholder="Enter Name Here" 
+                        class="w-full px-4 py-3 rounded-xl text-gray-700 outline-none border-2 border-pink-100 focus:border-pink-300 text-center mb-6 shadow-inner">
+                    
+                    <button id="cut-btn">
+                        ✂️ Cut Ribbon
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[2000] p-4">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl scale-0 transition-transform duration-500" id="modal-content">
+            <div class="text-6xl mb-4">💕🎉</div>
+            <h2 class="italic-style text-4xl text-pink-600 mb-2">You Said Yes!</h2>
+            <button onclick="goToCalculator()" class="mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full w-full">
+                Calculate Our Love
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const bookData = [
+            { date: "Feb 7", title: "Rose Day 🌹", note: "Roses are red, violets are blue, but none of them are as beautiful as you. May our love bloom forever.", quote: "A single rose can be my garden." },
+            { date: "Feb 8", title: "Propose Day 💍", note: "Today is the day to take a chance, to speak the words that have been hidden in my heart.", quote: "I would rather spend one lifetime with you." },
+            { date: "Feb 9", title: "Chocolate Day 🍫", note: "Life is like a box of chocolates, but having you makes every moment sweet.", quote: "Sharing life with you is the sweetest treat." },
+            { date: "Feb 10", title: "Teddy Day 🧸", note: "Sending you a virtual bear hug today. You're the softest, warmest part of my life.", quote: "Sometimes all you need is a big hug." },
+            { date: "Feb 11", title: "Promise Day 🤙", note: "I promise to hold your hand through every high and low. I will never leave your side.", quote: "A promise is a cloud; fulfillment is rain." },
+            { date: "Feb 12", title: "Hug Day 🤗", note: "A hug is a silent way of saying you matter to me.", quote: "Hugs are the universal language of love." },
+            { date: "Feb 13", title: "Kiss Day 💋", note: "A kiss is a beautiful trick designed by nature to stop speech.", quote: "One kiss is all it takes." },
+            { date: "Feb 14", title: "Valentine's Day ❤️", note: "You are my heart, my soul, and my greatest adventure. Thank you for being mine.", quote: "Loved you yesterday, love you still." }
+        ];
+
+        let userName = "";
+        const book = document.getElementById('book');
+        const emojis = ['💖', '✨', '🌸', '🧸', '🍭', '🦋', '❤️'];
+
+        window.onload = () => { setupPages(); };
+
+        function createFloatingEmoji(container) {
+            const e = document.createElement('div');
+            e.className = 'page-emoji';
+            e.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            e.style.left = Math.random() * 80 + 10 + "%";
+            container.appendChild(e);
+            setTimeout(() => e.remove(), 5000);
+        }
+
+        function setupPages() {
+            bookData.forEach((data, index) => {
+                const page = document.createElement('div');
+                page.className = 'page';
+                page.style.zIndex = (10 - index);
+                const content = document.createElement('div');
+                content.className = 'page-content';
+                content.innerHTML = `
+                    <div class="date-ribbon">${data.date}</div>
+                    <div class="text-6xl my-4 animate-bounce">${data.title.split(' ').pop()}</div>
+                    <h2 class="font-serif text-3xl text-pink-600 mb-1">${data.title}</h2>
+                    <p class="text-pink-800 text-2xl mb-4 italic-style">Dearest <span class="recipient-name">Special One</span></p>
+                    <div class="note-box"><p class="text-center text-gray-700 leading-relaxed font-medium">${data.note}</p></div>
+                    <p class="italic-style text-2xl text-pink-700 mt-4 px-4 text-center">"${data.quote}"</p>
+                    <div class="mt-auto text-pink-400 text-xs tracking-widest uppercase">Tap to Continue →</div>
+                `;
+                const back = document.createElement('div');
+                back.className = 'page-back';
+                back.innerHTML = `<div class="italic-style text-pink-300 text-2xl opacity-40">Memories</div>`;
+                page.appendChild(content);
+                page.appendChild(back);
+                page.onclick = () => flipPage(page);
+                book.appendChild(page);
+                setInterval(() => createFloatingEmoji(content), 1000);
+            });
+
+            // Proposal Page
+            const propPage = document.createElement('div');
+            propPage.className = 'page';
+            propPage.style.zIndex = 1;
+            propPage.innerHTML = `
+                <div class="page-content">
+                    <div class="date-ribbon">Final</div>
+                    <h2 class="italic-style text-5xl text-pink-600 mt-10 mb-6">Will You Be My Valentine?</h2>
+                    <p class="text-center text-gray-600 px-4 mb-8 text-xl italic-style"><span class="recipient-name">Special One</span>, my heart belongs to you.</p>
+                    <div class="relative w-full h-48" id="arena">
+                        <button id="yes-btn" onclick="handleYes(event)" class="absolute left-1/2 -translate-x-1/2 top-10 bg-pink-500 text-white px-10 py-4 rounded-full font-bold shadow-lg text-xl z-30">YES! ❤️</button>
+                        <button id="no-btn" onmouseover="moveNo()" class="absolute left-1/2 -translate-x-1/2 top-32 px-6 py-2 rounded-full border shadow-sm z-30">No</button>
+                    </div>
+                </div>
+                <div class="page-back"><div class="italic-style text-pink-300 text-2xl opacity-40">Forever</div></div>
+            `;
+            book.appendChild(propPage);
+
+            // Calculator Page
+            const calcPage = document.createElement('div');
+            calcPage.className = 'page';
+            calcPage.style.zIndex = 0;
+            calcPage.innerHTML = `
+                <div class="page-content overflow-y-auto">
+                    <h2 class="font-serif text-3xl text-pink-700 mb-6">Love Calculator</h2>
+                    <div class="flex flex-col gap-4 w-full px-4" id="calc-inputs">
+                        <input type="text" id="calc-user-name" readonly class="bg-white p-3 rounded-lg text-center font-bold text-pink-600 italic-style text-xl shadow-sm border border-pink-100">
+                        <div class="text-center text-2xl font-bold text-pink-400">+</div>
+                        <input type="text" id="partner-name" placeholder="Partner's Name" class="p-3 rounded-lg text-center border-2 border-pink-200 focus:border-pink-500 outline-none text-pink-600 font-bold italic-style text-xl">
+                        <button onclick="calculateLove(event)" class="bg-pink-600 text-white py-3 rounded-lg font-bold shadow-md">Calculate Compatibility</button>
+                    </div>
+                    <div id="calc-result" class="mt-6 text-center opacity-0 transition-opacity duration-500">
+                        <div id="calc-percent" class="italic-style text-6xl text-pink-600">0%</div>
+                        <p id="calc-msg" class="mt-2 text-gray-600 font-medium px-4"></p>
+                    </div>
+                    <div id="secret-message" class="mt-6 bg-white p-6 rounded-xl border-2 border-pink-200 shadow-inner">
+                        <p class="italic-style text-2xl text-pink-600">To my favorite person,</p>
+                        <p class="text-gray-700 mt-2 font-medium">Since we are a 100% match, I wanted to tell you that you make every day feel like Valentine's Day. I am so lucky to have you in my life! 💖✨</p>
+                    </div>
+                </div>
+            `;
+            book.appendChild(calcPage);
+        }
+
+        function flipPage(p) { p.classList.toggle('flipped'); document.querySelectorAll('.page').forEach((pg, i) => pg.style.zIndex = pg.classList.contains('flipped') ? 50 + i : 50 - i); }
+
+        document.getElementById('cut-btn').onclick = function() {
+            const input = document.getElementById('name-input');
+            if (input.value.trim() === "") return alert("Please enter a name!");
+            userName = input.value;
+            document.querySelectorAll('.recipient-name').forEach(el => el.innerText = userName);
+            document.getElementById('calc-user-name').value = userName;
+            document.getElementById('cover').classList.add('cut-ribbon');
+            setTimeout(() => { flipPage(document.getElementById('cover')); fireConfetti(); }, 600);
+        };
+
+        function moveNo() { const btn = document.getElementById('no-btn'); btn.style.left = Math.random() * 80 + 10 + "%"; btn.style.top = Math.random() * 80 + 10 + "%"; }
+        function handleYes(e) { e.stopPropagation(); document.getElementById('success-modal').classList.replace('hidden', 'flex'); setTimeout(() => document.getElementById('modal-content').classList.add('scale-100'), 10); fireConfetti(); }
+        function goToCalculator() { document.getElementById('success-modal').classList.add('hidden'); flipPage(document.querySelectorAll('.page')[9]); }
+
+        function calculateLove(e) {
+            e.stopPropagation();
+            const pName = document.getElementById('partner-name').value.trim();
+            if (!pName) return;
+            let targetScore = pName.toLowerCase() === "aarav" ? 100 : 0;
+            const resultArea = document.getElementById('calc-result');
+            const percentEl = document.getElementById('calc-percent');
+            const msgEl = document.getElementById('calc-msg');
+            const secretMsg = document.getElementById('secret-message');
+            resultArea.style.opacity = "1";
+            let current = 0;
+            percentEl.innerText = "0%";
+            secretMsg.style.display = "none";
+            
+            if (targetScore === 0) {
+                msgEl.innerText = "Sorry, only Aarav is the perfect match! 💔";
+            } else {
+                const timer = setInterval(() => {
+                    if (current >= targetScore) {
+                        clearInterval(timer);
+                        msgEl.innerText = "Perfect Match! Soulmates Forever! 💕";
+                        fireConfetti();
+                        secretMsg.style.display = "block";
+                    } else {
+                        current++;
+                        percentEl.innerText = current + "%";
+                    }
+                }, 30);
+            }
+        }
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        let particles = [];
+        function fireConfetti() { for (let i = 0; i < 60; i++) particles.push({ x: canvas.width / 2, y: canvas.height / 2, vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20, size: Math.random() * 8 + 4, alpha: 1, color: ['#ec4899', '#be185d', '#ffd700'][Math.floor(Math.random() * 3)] }); }
+        function animateConfetti() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach((p, i) => { p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.alpha -= 0.01; ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); if (p.alpha <= 0) particles.splice(i, 1); }); requestAnimationFrame(animateConfetti); }
+        animateConfetti();
+    </script>
+</body>
+</html>
